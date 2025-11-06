@@ -3,75 +3,178 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Tarjeta de Cumpleaños 🎂</title>
+  <title>Tarjeta - Sobre rosado (Interactiva)</title>
   <style>
-    body,html{margin:0;padding:0;height:100%;overflow:hidden;font-family:Inter,Arial,sans-serif;background:#ffdee9;background:linear-gradient(135deg,#ffdee9 0%,#b5fffc 100%);} 
-    .container{display:flex;justify-content:center;align-items:center;height:100vh;position:relative;}
+    :root{--pink:#ff8fb2;--pink-dark:#ff6b97;--card-bg:#fff7fb}
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;background:linear-gradient(135deg,#ffd6e8 0%,#c9f0ff 100%);-webkit-font-smoothing:antialiased}
+    .stage{height:100vh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
 
-    .card{
-      width:320px;height:200px;background:#fff;border-radius:12px;box-shadow:0 8px 20px rgba(0,0,0,0.2);position:relative;cursor:pointer;transition:transform 1s;transform-style:preserve-3d;}
-    .card.open{transform:rotateY(180deg);}
+    /* Envelope container */
+    .envelope-wrap{width:420px;height:260px;position:relative;perspective:1200px}
+    .envelope{width:100%;height:100%;position:relative;border-radius:12px;transform-style:preserve-3d;transition:transform .9s cubic-bezier(.2,.9,.3,1);}
 
-    .front,.back{
-      position:absolute;top:0;left:0;width:100%;height:100%;backface-visibility:hidden;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-direction:column;
-    }
+    /* Envelope body */
+    .body{position:absolute;inset:0;background:linear-gradient(180deg,var(--pink),var(--pink-dark));border-radius:12px;box-shadow:0 20px 40px rgba(0,0,0,0.15);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:20px}
 
-    .front{background:linear-gradient(135deg,#ff6b6b,#ff8eab);color:white;}
-    .back{background:#fff;transform:rotateY(180deg);color:#333;padding:20px;box-sizing:border-box;text-align:center;}
+    /* Flap */
+    .flap{position:absolute;left:0;right:0;top:0;height:60%;background:linear-gradient(180deg,#ffd6e8,#ff7aa6);border-top-left-radius:12px;border-top-right-radius:12px;transform-origin:center top;transition:transform .8s cubic-bezier(.2,.9,.3,1);box-shadow:0 8px 18px rgba(0,0,0,0.12)}
+    .envelope.open .flap{transform:rotateX(-160deg) translateY(-8px)}
 
-    .message{font-size:18px;opacity:0;transform:translateY(40px);transition:all 1s;}
-    .card.open .message{opacity:1;transform:translateY(0);}
+    /* Paper inside */
+    .paper{position:absolute;left:10px;right:10px;bottom:16px;height:70%;background:var(--card-bg);border-radius:8px;padding:22px;box-shadow:0 10px 30px rgba(0,0,0,0.12);transform:translateY(40px);transition:transform .9s cubic-bezier(.2,.9,.3,1);z-index:2;overflow:hidden}
+    .envelope.open .paper{transform:translateY(-120%)}
 
-    #confettiCanvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10;}
+    /* Give the paper the 'old card' look */
+    .paper h1{margin:0;font-size:26px;color:#333}
+    .paper p{color:#444;line-height:1.5;margin-top:12px}
+    .actions{display:flex;gap:10px;margin-top:16px}
+    .btn{padding:10px 14px;border-radius:10px;border:0;cursor:pointer;font-weight:700}
+    .btn-primary{background:var(--pink-dark);color:white}
+    .btn-ghost{background:transparent;border:1px solid rgba(0,0,0,0.06)}
 
-    .cake-section{display:none;flex-direction:column;align-items:center;justify-content:center;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.95);z-index:15;text-align:center;}
-    .cake-section.show{display:flex;animation:fadeIn 1s forwards;}
+    /* Subtle 'touch me' vibration */
+    @keyframes pulseTouch{0%{transform:translateY(0) rotate(0)}30%{transform:translateY(-6px) rotate(-1deg)}60%{transform:translateY(0) rotate(1deg)}100%{transform:translateY(0) rotate(0)}}
+    .envelope.idle{animation:pulseTouch 2.6s ease-in-out infinite;}
 
-    @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+    /* Shadow for realism */
+    .shadow{position:absolute;left:8px;right:8px;bottom:-12px;height:30px;border-radius:50%;filter:blur(18px);background:linear-gradient(90deg,rgba(0,0,0,0.25),rgba(0,0,0,0.15));opacity:.8;transform:translateY(6px)}
 
-    .cake{font-size:120px;animation:bounce 1.5s infinite alternate;}
-    @keyframes bounce{0%{transform:translateY(0);}100%{transform:translateY(-15px);}}
+    /* Cake overlay */
+    .overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);z-index:80;opacity:0;pointer-events:none;transition:opacity .4s}
+    .overlay.show{opacity:1;pointer-events:auto}
+    .cake-card{width:760px;max-width:94%;background:linear-gradient(180deg,#fff,#fff4f8);padding:28px;border-radius:18px;box-shadow:0 30px 80px rgba(0,0,0,0.3);text-align:center;position:relative}
+    .cake-emoji{font-size:160px;display:block;margin:6px auto;transform-origin:center bottom;animation:pop .9s cubic-bezier(.2,.9,.3,1)}
+    @keyframes pop{0%{transform:scale(.6)}60%{transform:scale(1.06)}100%{transform:scale(1)}}
+    .cake-title{font-size:28px;margin:8px 0}
+    .overlay .close{position:absolute;right:18px;top:18px;background:transparent;border:0;color:#333;font-weight:700;cursor:pointer}
 
-    .btn{margin-top:16px;padding:10px 20px;border:none;border-radius:8px;background:#ff6b6b;color:#fff;font-weight:bold;cursor:pointer;}
+    /* Confetti full-screen canvas above everything */
+    #confetti{position:fixed;left:0;top:0;right:0;bottom:0;pointer-events:none;z-index:100}
+
+    /* Responsive tweaks */
+    @media (max-width:540px){.envelope-wrap{width:320px;height:200px}.paper{padding:16px}.cake-emoji{font-size:110px}}
   </style>
 </head>
 <body>
-  <canvas id="confettiCanvas"></canvas>
-  <div class="container">
-    <div class="card" id="card">
-      <div class="front">
-        <h2>🎁 Tócame para abrir 🎁</h2>
-      </div>
-      <div class="back">
-        <h2>💌 Carta de Cumpleaños 💌</h2>
-        <p class="message">Feliz cumpleaños, mi amor ❤️<br>Gracias por iluminar mis días con tu sonrisa.<br>Hoy deseo que cada segundo sea especial, así como tú lo eres para mí.</p>
-        <button class="btn" id="viewCake">Ver pastel 🎂</button>
+  <div class="stage">
+    <div class="envelope-wrap">
+      <div class="envelope idle" id="envelope" role="button" tabindex="0" aria-label="Tocar para abrir la carta">
+        <div class="flap" id="flap"></div>
+        <div class="body">Toca para abrir</div>
+        <div class="paper" id="paper">
+          <!-- Aquí va el diseño antiguo de la carta: editable por ti -->
+          <h1 id="cardTitle">¡Feliz cumpleaños, Amor!</h1>
+          <p id="cardText">(Escribe tu mensaje aquí. Puedes editar el contenido dentro del HTML.)</p>
+          <div class="actions">
+            <button class="btn btn-primary" id="viewCake">🎂 Ver pastel</button>
+            <button class="btn btn-ghost" id="downloadPdf">📄 Descargar carta (PDF)</button>
+          </div>
+        </div>
+        <div class="shadow" aria-hidden></div>
       </div>
     </div>
   </div>
-  <div class="cake-section" id="cakeSection">
-    <div class="cake">🎂</div>
-    <h2>¡Feliz cumpleaños, amor!</h2>
-    <button class="btn" id="closeCake">Cerrar</button>
+
+  <!-- overlay para el pastel grande -->
+  <div class="overlay" id="overlay">
+    <div class="cake-card" role="dialog" aria-modal="true" aria-label="Pastel de cumpleaños">
+      <button class="close" id="closeOverlay">Cerrar ✕</button>
+      <div class="cake-emoji" id="cakeEmoji">🎂</div>
+      <div class="cake-title">¡Que todos tus deseos se hagan realidad!</div>
+      <p style="color:#444">Pulsa fuera o en Cerrar para volver a la carta.</p>
+    </div>
   </div>
+
+  <canvas id="confetti"></canvas>
+
   <script>
-    const card=document.getElementById('card');
-    const canvas=document.getElementById('confettiCanvas');
-    const ctx=canvas.getContext('2d');
-    let W,H;function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}window.addEventListener('resize',resize);resize();
+    // Elementos
+    const envelope = document.getElementById('envelope');
+    const flap = document.getElementById('flap');
+    const paper = document.getElementById('paper');
+    const overlay = document.getElementById('overlay');
+    const viewCakeBtn = document.getElementById('viewCake');
+    const closeOverlay = document.getElementById('closeOverlay');
+    const downloadPdfBtn = document.getElementById('downloadPdf');
 
-    function random(min,max){return Math.random()*(max-min)+min;}
+    // Open state
+    let opened = false;
 
-    function confetti(){
-      const pieces=[];for(let i=0;i<200;i++){pieces.push({x:random(0,W),y:random(-H,0),r:random(5,10),c:`hsl(${random(0,360)},80%,60%)`,vy:random(1,3),vx:random(-1,1)});}
-      function frame(){ctx.clearRect(0,0,W,H);for(const p of pieces){p.x+=p.vx;p.y+=p.vy;p.vy+=0.01;if(p.y>H)p.y=random(-H,0);ctx.beginPath();ctx.fillStyle=p.c;ctx.fillRect(p.x,p.y,p.r,p.r);}requestAnimationFrame(frame);}frame();
+    // Accessibility: open with Enter/Space
+    envelope.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); envelope.click(); }});
+
+    // Click to open: flap animation + slide paper up
+    envelope.addEventListener('click', ()=>{
+      if(opened) return; opened = true;
+      envelope.classList.remove('idle');
+      envelope.classList.add('open');
+      // animate flap (using class toggle)
+      // Delay to allow flap to rotate then slide paper
+      setTimeout(()=>{
+        // paper translation is handled by CSS .envelope.open .paper
+      }, 300);
+    });
+
+    // Cake overlay handling
+    viewCakeBtn.addEventListener('click', ()=>{
+      showCake();
+    });
+    closeOverlay.addEventListener('click', hideCake);
+    overlay.addEventListener('click', (e)=>{ if(e.target===overlay) hideCake(); });
+
+    // Confetti: appear only when cake overlay shows
+    const confettiCanvas = document.getElementById('confetti');
+    const ctx = confettiCanvas.getContext('2d');
+    let W=confettiCanvas.width=window.innerWidth; let H=confettiCanvas.height=window.innerHeight;
+    window.addEventListener('resize', ()=>{ W=confettiCanvas.width=window.innerWidth; H=confettiCanvas.height=window.innerHeight; });
+
+    function rand(min,max){return Math.random()*(max-min)+min}
+
+    let confettiPieces = [];
+    let confettiAnimId = null;
+    function startConfetti(){
+      confettiPieces = [];
+      const count = Math.max(150, Math.floor((W*H)/10000));
+      for(let i=0;i<count;i++){
+        confettiPieces.push({x:rand(0,W),y:rand(-H,0),w:rand(6,14),h:rand(8,18),vx:rand(-2,2),vy:rand(1,4),rot:rand(0,360),vrot:rand(-8,8),color:`hsl(${rand(0,360)},80%,60%)`});
+      }
+      function frame(){
+        ctx.clearRect(0,0,W,H);
+        for(const p of confettiPieces){
+          p.x += p.vx; p.y += p.vy; p.vy += 0.02; p.rot += p.vrot;
+          ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot*Math.PI/180);
+          ctx.fillStyle = p.color; ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+          ctx.restore();
+          if(p.y>H+50){ p.y = rand(-H,0); p.x = rand(0,W); p.vy = rand(1,3); }
+        }
+        confettiAnimId = requestAnimationFrame(frame);
+      }
+      frame();
     }
+    function stopConfetti(){ if(confettiAnimId) cancelAnimationFrame(confettiAnimId); ctx.clearRect(0,0,W,H); confettiAnimId = null; }
 
-    card.addEventListener('click',()=>{card.classList.toggle('open');if(card.classList.contains('open'))confetti();});
+    function showCake(){ overlay.classList.add('show'); startConfetti(); // stop confetti after some time
+      // Stop confetti after 8s
+      setTimeout(()=>{ stopConfetti(); }, 8000);
+    }
+    function hideCake(){ overlay.classList.remove('show'); stopConfetti(); }
 
-    const cakeSection=document.getElementById('cakeSection');
-    document.getElementById('viewCake').addEventListener('click',()=>{cakeSection.classList.add('show');});
-    document.getElementById('closeCake').addEventListener('click',()=>{cakeSection.classList.remove('show');});
+    // Download PDF: open new window with printable content and call print()
+    downloadPdfBtn.addEventListener('click', ()=>{
+      const title = document.getElementById('cardTitle').innerText;
+      const text = document.getElementById('cardText').innerHTML;
+      const printable = `<!doctype html><html><head><meta charset=\"utf-8\"><title>${title}</title><style>body{font-family:Arial,Helvetica,sans-serif;padding:40px;color:#222} .paper{max-width:700px;margin:0 auto;padding:30px;border:1px solid #eee;border-radius:8px;background:#fff}</style></head><body><div class=\"paper\"><h1>${title}</h1><div>${text}</div></div></body></html>`;
+      const win = window.open('about:blank','_blank');
+      win.document.write(printable);
+      // Give the window a moment to render
+      setTimeout(()=>{ try{ win.focus(); win.print(); /* user can choose "Save as PDF" */ }catch(e){ console.error(e); } }, 400);
+    });
+
+    // Prevent envelope from vibrating after opened
+    // (just in case user closes and wants to re-open, we keep it open)
+
+    // Small enhancement: keyboard shortcut C to view cake for demo
+    document.addEventListener('keydown', (e)=>{ if(e.key.toLowerCase()==='c'){ showCake(); } });
   </script>
 </body>
 </html>
