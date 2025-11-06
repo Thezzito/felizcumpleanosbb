@@ -1,0 +1,218 @@
+<!--
+  Página única: Feliz Cumpleaños (editable)
+  Instrucciones: copia todo este archivo a un .html y ábrelo en tu navegador.
+  Cambia el texto en el elemento <h1 id="name"> para poner el nombre de tu novia,
+  o reemplaza las imágenes/colores según quieras.
+-->
+
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Feliz cumple, amor 🎂</title>
+  <style>
+    :root{
+      --bg1:#FFDEE9; /* suave rosa */
+      --bg2:#B5FFFC; /* aqua */
+      --accent:#FF6B6B;
+      --card:#ffffffcc;
+      --shadow: 0 8px 30px rgba(0,0,0,0.12);
+      --glass: rgba(255,255,255,0.6);
+    }
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}
+    body{
+      background: radial-gradient(circle at 10% 10%, var(--bg1), transparent 25%),
+                  radial-gradient(circle at 90% 90%, var(--bg2), transparent 25%),
+                  linear-gradient(135deg,#fffafa, #f7fff7);
+      display:flex;align-items:center;justify-content:center; padding:32px;box-sizing:border-box;
+    }
+    .card{
+      width:100%;max-width:980px;background:linear-gradient(135deg, rgba(255,255,255,0.8), rgba(255,255,255,0.7));
+      border-radius:20px;padding:28px;box-shadow:var(--shadow);position:relative;overflow:hidden;
+      backdrop-filter: blur(6px);
+    }
+    header{display:flex;gap:20px;align-items:center}
+    .logo{
+      width:86px;height:86px;border-radius:20px;background:linear-gradient(135deg,var(--accent),#FF8EAB);
+      display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:32px;box-shadow:0 6px 18px rgba(255,107,107,0.2)
+    }
+    h1{margin:0;font-size:34px}
+    p.lead{margin:6px 0 18px;color:#444}
+
+    .grid{display:grid;grid-template-columns:1fr 360px;gap:22px;align-items:start}
+    .message{padding:18px;border-radius:12px;background:var(--card)}
+
+    .big-message{font-size:20px;line-height:1.35}
+    .heart{width:100%;display:flex;align-items:center;gap:14px}
+    .heart svg{width:68px;height:68px}
+
+    .controls{display:flex;gap:8px;flex-wrap:wrap}
+    .btn{border:0;padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:600}
+    .btn-primary{background:var(--accent);color:white}
+    .btn-ghost{background:transparent;border:1px solid rgba(0,0,0,0.06)}
+
+    .panel{padding:18px;border-radius:12px;background:linear-gradient(180deg,var(--glass),#ffffff);box-shadow:inset 0 1px 0 rgba(255,255,255,0.6)}
+    .panel h3{margin-top:0}
+
+    footer{margin-top:16px;text-align:center;color:#666}
+
+    /* balloons */
+    .balloons{position:absolute;right:-40px;top:-20px;pointer-events:none}
+    .balloon{width:80px;height:110px;border-radius:60% 60% 60% 60%;position:absolute;transform-origin:center bottom;animation:float 6s ease-in-out infinite}
+    .balloon:nth-child(1){background:linear-gradient(180deg,#ffd1dc,#ff7aa2);left:20px;animation-delay:0s}
+    .balloon:nth-child(2){background:linear-gradient(180deg,#c7f9ff,#6fe7e7);left:90px;animation-delay:1s}
+    .balloon:nth-child(3){background:linear-gradient(180deg,#fff2b0,#ffd86b);left:160px;animation-delay:0.5s}
+    @keyframes float{0%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-18px) rotate(4deg)}100%{transform:translateY(0) rotate(-3deg)}}
+
+    /* responsive */
+    @media (max-width:880px){
+      .grid{grid-template-columns:1fr}
+      .balloons{display:none}
+      header{gap:12px}
+      h1{font-size:26px}
+    }
+
+    /* confetti canvas placed on top */
+    #confetti{position:absolute;left:0;right:0;top:0;bottom:0;pointer-events:none}
+  </style>
+</head>
+<body>
+  <div class="card" role="main">
+    <canvas id="confetti"></canvas>
+    <div class="balloons" aria-hidden>
+      <div class="balloon"></div>
+      <div class="balloon"></div>
+      <div class="balloon"></div>
+    </div>
+
+    <header>
+      <div class="logo">❤</div>
+      <div>
+        <h1 id="title">¡Feliz cumpleaños, <span id="name">Amor</span>! 🎉</h1>
+        <p class="lead">Un detalle pequeño hecho con cariño. Pulsa los botones para activar efectos o personalizar.</p>
+      </div>
+    </header>
+
+    <div class="grid" style="margin-top:18px">
+      <section class="message">
+        <div class="heart">
+          <!-- corazón SVG editable -->
+          <svg viewBox="0 0 32 29" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+            <path id="heartPath" d="M23.6 2C20.9 2 19 3.9 17.9 5c-1.1-1.1-3-3-5.7-3C6.4 2 2 6.1 2 11.3 2 19 14.6 26 16 26c1.4 0 14-7.1 14-14.7C30 6.1 25.6 2 23.6 2z" fill="#ff6b6b"/>
+          </svg>
+          <div>
+            <div class="big-message">Hola <strong id="name2">Amor</strong>,<br> hoy celebramos tu día. Gracias por ser tú — por tus risas, locuras y por cada momento compartido. Te quiero muchísimo.</div>
+          </div>
+        </div>
+
+        <div style="margin-top:16px" class="controls">
+          <button class="btn btn-primary" id="confettiBtn">Lanzar confeti</button>
+          <button class="btn btn-ghost" id="changeName">Cambiar nombre</button>
+          <button class="btn btn-ghost" id="downloadBtn">Descargar tarjeta</button>
+        </div>
+      </section>
+
+      <aside class="panel" aria-label="Controles">
+        <h3>Personaliza rápido</h3>
+        <label>
+          Nombre:
+          <input id="inputName" type="text" placeholder="Escribe un nombre" style="width:100%;padding:8px;margin-top:8px;border-radius:8px;border:1px solid #eee">
+        </label>
+        <p style="margin-top:12px">Prueba cambiar colores, añadir una foto o reemplazar el texto por un mensaje privado.</p>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button class="btn btn-primary" id="applyBtn">Aplicar</button>
+          <button class="btn" id="resetBtn">Restablecer</button>
+        </div>
+      </aside>
+    </div>
+
+    <footer>
+      <small>Hecho con ❤️ — modifica el HTML como quieras.</small>
+    </footer>
+  </div>
+
+  <script>
+    // Pequeño confeti en canvas
+    const canvas = document.getElementById('confetti');
+    const ctx = canvas.getContext('2d');
+    let W = canvas.width = window.innerWidth;
+    let H = canvas.height = window.innerHeight;
+
+    window.addEventListener('resize', () => { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; });
+
+    function random(min,max){ return Math.random()*(max-min)+min }
+
+    function makeConfetti(){
+      const count = 120;
+      const pieces = [];
+      for(let i=0;i<count;i++){
+        pieces.push({
+          x: random(0,W), y: random(-H,0),
+          w: random(6,12), h: random(8,14),
+          vx: random(-1,1), vy: random(1,3),
+          rot: random(0,360), vrot: random(-6,6),
+          color: `hsl(${Math.floor(random(0,360))}deg 80% 60%)`
+        });
+      }
+      let t = 0;
+      function frame(){
+        t++;
+        ctx.clearRect(0,0,W,H);
+        for(const p of pieces){
+          p.x += p.vx; p.y += p.vy; p.vy += 0.02; p.rot += p.vrot;
+          ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot*Math.PI/180);
+          ctx.fillStyle = p.color; ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+          ctx.restore();
+        }
+        if(t<240) requestAnimationFrame(frame);
+        else ctx.clearRect(0,0,W,H);
+      }
+      frame();
+    }
+
+    // Controls
+    document.getElementById('confettiBtn').addEventListener('click', makeConfetti);
+
+    const nameEls = [document.getElementById('name'), document.getElementById('name2')];
+    const input = document.getElementById('inputName');
+    document.getElementById('applyBtn').addEventListener('click', ()=>{
+      const val = input.value.trim(); if(!val) return alert('Escribe un nombre primero');
+      nameEls.forEach(el=>el.textContent = val);
+      document.getElementById('title').scrollIntoView({behavior:'smooth'});
+    });
+
+    document.getElementById('changeName').addEventListener('click', ()=>{
+      const val = prompt('Escribe el nombre que quieres mostrar:', input.value||'Amor');
+      if(val!==null){ nameEls.forEach(el=>el.textContent = val); input.value = val; }
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', ()=>{
+      input.value = ''; nameEls.forEach(el=>el.textContent = 'Amor');
+    });
+
+    // Descargar tarjeta: generar imagen PNG del .card
+    document.getElementById('downloadBtn').addEventListener('click', async ()=>{
+      const card = document.querySelector('.card');
+      // usamos html2canvas si estuviera disponible; en este ejemplo hacemos snapshot simple usando SVG foreignObject
+      const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='630'><foreignObject width='100%' height='100%'>${new XMLSerializer().serializeToString(card)}</foreignObject></svg>`;
+      const blob = new Blob([svg],{type:'image/svg+xml;charset=utf-8'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'tarjeta-cumple.svg'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    });
+
+    // Pequeña mejora: animar el corazón al cargar
+    const heart = document.getElementById('heartPath');
+    if(heart) {
+      heart.style.transformOrigin = '16px 14px';
+      heart.animate([
+        { transform: 'scale(1)' },
+        { transform: 'scale(1.12)' },
+        { transform: 'scale(1)' }
+      ], { duration: 1200, iterations: Infinity, easing: 'ease-in-out' });
+    }
+
+    // Consejos: si quieres música, pon un <audio> y controla play/pause desde los botones.
+  </script>
+</body>
+</html>
